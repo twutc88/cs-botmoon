@@ -8,9 +8,25 @@ export async function GET(request: NextRequest) {
   const page = searchParams.get('page') || '1';
   const pageSize = searchParams.get('page_size') || '100';
   const search = searchParams.get('search') || '';
+  const leadStage = searchParams.get('lead_stage') || '';
+  const botStatus = searchParams.get('bot_status') || '';
+  const payment = searchParams.get('payment') || '';
+  const packageFilter = searchParams.get('package') || '';
 
   try {
-    const url = `${BASE_URL}/external/user?secretKey=${SECRET_KEY}&page=${page}&page_size=${pageSize}&search=${encodeURIComponent(search)}`;
+    const params = new URLSearchParams({
+      secretKey: SECRET_KEY,
+      page: page,
+      page_size: pageSize,
+      search: search,
+    });
+    
+    if (leadStage) params.append('lead_stage', leadStage);
+    if (botStatus) params.append('bot_status', botStatus);
+    if (payment) params.append('payment', payment);
+    if (packageFilter) params.append('package', packageFilter);
+    
+    const url = `${BASE_URL}/external/user?${params.toString()}`;
     const response = await fetch(url, {
       headers: {
         'Accept': 'application/json',
