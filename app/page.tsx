@@ -49,23 +49,18 @@ const ACTION_TYPES = [
 export default function Home() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
-  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const [selectedUser, setSelectedUser] = useState<UserDetail | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [actionType, setActionType] = useState('');
   const [note, setNote] = useState('');
   const [actionHistory, setActionHistory] = useState<CustomerAction[]>([]);
   const [latestActions, setLatestActions] = useState<Record<number, string>>({});
-  
-  // Filter states
-  const [leadStageFilter, setLeadStageFilter] = useState('all');
-  const [botStatusFilter, setBotStatusFilter] = useState('all');
-  const [paymentFilter, setPaymentFilter] = useState('all');
-  const [packageFilter, setPackageFilter] = useState('all');
 
   useEffect(() => {
     const auth = localStorage.getItem('cs_auth');
@@ -79,14 +74,14 @@ export default function Home() {
       loadUsers();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, search]);
+  }, [isAuthenticated, search, page]);
 
   useEffect(() => {
-    if (allUsers.length > 0) {
+    if (users.length > 0) {
       loadLatestActions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allUsers.length]);
+  }, [users.length]);
 
   const handleLogin = () => {
     if (password === PASSWORD) {
@@ -105,27 +100,10 @@ export default function Home() {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      // Load first page to get total count
-      const firstResponse = await fetchUsers(1, 100, search);
-      const totalCount = firstResponse.pagination.total_count;
-      const maxPages = Math.min(firstResponse.pagination.max_page, 50); // Limit to 50 pages (5000 users)
-      
-      let allData = [...firstResponse.data];
-      
-      // Load remaining pages in batches
-      if (maxPages > 1) {
-        const pagePromises = [];
-        for (let p = 2; p <= maxPages; p++) {
-          pagePromises.push(fetchUsers(p, 100, search));
-        }
-        
-        const responses = await Promise.all(pagePromises);
-        responses.forEach(res => {
-          allData = [...allData, ...res.data];
-        });
-      }
-      
-      setAllUsers(allData);
+      const response = await fetchUsers(page, 20, search);
+      setUsers(response.data);
+      setTotalPages(response.pagination.max_page);
+      setTotalCount(response.pagination.total_count);
     } catch (error) {
       console.error('Error loading users:', error);
     } finally {
@@ -134,11 +112,11 @@ export default function Home() {
   };
 
   const loadLatestActions = async () => {
-    if (allUsers.length === 0) return;
+    if (users.length === 0) return;
     
     const actions: Record<number, string> = {};
     await Promise.all(
-      allUsers.slice(0, 100).map(async (user) => {
+      users.map(async (user) => {
         try {
           const latest = await getLatestAction(user.id);
           if (latest) {
@@ -242,65 +220,6 @@ export default function Home() {
     return user.email || `ID: #${user.id}`;
   };
 
-  // Filter users based on selected filters
-  const filteredUsers = useMemo(() => {
-    return allUsers.filter((user) => {
-      const leadStage = calculateLeadStage(
-        user.created_time,
-        user.user_status.add_payment,
-        user.user_status.bot_is_running
-      );
-      const botStatus = getBotStatus(user);
-
-      // Lead Stage filter
-      if (leadStageFilter !== 'all' && leadStage.stage !== leadStageFilter) {
-        return false;
-      }
-
-      // Bot Status filter
-      if (botStatusFilter !== 'all') {
-        if (botStatusFilter === 'active' && !user.user_status.bot_is_running) return false;
-        if (botStatusFilter === 'paused' && (user.user_status.bot_is_running || !user.user_status.has_robot)) return false;
-        if (botStatusFilter === 'no-bot' && user.user_status.has_robot) return false;
-      }
-
-      // Payment filter
-      if (paymentFilter !== 'all') {
-        if (paymentFilter === 'paid' && !user.user_status.add_payment) return false;
-        if (paymentFilter === 'unpaid' && user.user_status.add_payment) return false;
-      }
-
-      // Package filter
-      if (packageFilter !== 'all') {
-        if (packageFilter === 'basic' && user.package !== 'Basic') return false;
-        if (packageFilter === 'elite' && user.package !== 'Elite') return false;
-        if (packageFilter === 'premium' && user.package !== 'Premium') return false;
-        if (packageFilter === 'none' && user.package) return false;
-      }
-
-      return true;
-    });
-  }, [allUsers, leadStageFilter, botStatusFilter, paymentFilter, packageFilter]);
-
-  // Pagination
-  const pageSize = 20;
-  const paginatedUsers = useMemo(() => {
-    const startIndex = (page - 1) * pageSize;
-    return filteredUsers.slice(startIndex, startIndex + pageSize);
-  }, [filteredUsers, page]);
-
-  useEffect(() => {
-    setTotalPages(Math.ceil(filteredUsers.length / pageSize));
-  }, [filteredUsers]);
-
-  const clearFilters = () => {
-    setLeadStageFilter('all');
-    setBotStatusFilter('all');
-    setPaymentFilter('all');
-    setPackageFilter('all');
-    setPage(1);
-  };
-
   if (!isAuthenticated) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
@@ -350,7 +269,7 @@ export default function Home() {
       </div>
 
       <div className="p-4 sm:p-6">
-        {/* Search and Filters */}
+        {/* Search */}
         <div className="mb-4 space-y-3 sm:space-y-4">
           <div className="flex gap-2 sm:gap-4">
             <div className="relative flex-1">
@@ -367,83 +286,10 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Filters Row */}
-          <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-5 md:gap-4">
-            <div>
-              <Label className="mb-1.5 block text-xs sm:text-sm font-medium">Lead Stage</Label>
-              <Select value={leadStageFilter} onValueChange={setLeadStageFilter}>
-                <SelectTrigger className="w-full text-xs sm:text-sm">
-                  <SelectValue placeholder="ทั้งหมด" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">ทั้งหมด</SelectItem>
-                  <SelectItem value="new">🟢 New</SelectItem>
-                  <SelectItem value="demo-7d">🟡 Demo 7D</SelectItem>
-                  <SelectItem value="demo-1d">🟣 Demo 1D</SelectItem>
-                  <SelectItem value="active">🔵 Active</SelectItem>
-                  <SelectItem value="inactive">⚪️ Inactive</SelectItem>
-                  <SelectItem value="payment-failed">⚫️ Payment Failed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label className="mb-1.5 block text-xs sm:text-sm font-medium">Bot Status</Label>
-              <Select value={botStatusFilter} onValueChange={setBotStatusFilter}>
-                <SelectTrigger className="w-full text-xs sm:text-sm">
-                  <SelectValue placeholder="ทั้งหมด" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">ทั้งหมด</SelectItem>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="paused">Paused</SelectItem>
-                  <SelectItem value="no-bot">No Bot</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label className="mb-1.5 block text-xs sm:text-sm font-medium">Payment</Label>
-              <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-                <SelectTrigger className="w-full text-xs sm:text-sm">
-                  <SelectValue placeholder="ทั้งหมด" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">ทั้งหมด</SelectItem>
-                  <SelectItem value="paid">เชื่อมบัตรแล้ว</SelectItem>
-                  <SelectItem value="unpaid">ยังไม่เชื่อมบัตร</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label className="mb-1.5 block text-xs sm:text-sm font-medium">Package</Label>
-              <Select value={packageFilter} onValueChange={setPackageFilter}>
-                <SelectTrigger className="w-full text-xs sm:text-sm">
-                  <SelectValue placeholder="ทั้งหมด" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">ทั้งหมด</SelectItem>
-                  <SelectItem value="basic">Basic</SelectItem>
-                  <SelectItem value="elite">Elite</SelectItem>
-                  <SelectItem value="premium">Premium</SelectItem>
-                  <SelectItem value="none">ไม่มี Package</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="col-span-2 md:col-span-1 flex items-end">
-              <Button variant="outline" onClick={clearFilters} className="w-full text-xs sm:text-sm">
-                <Icon icon="mdi:filter-remove" className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-                ล้าง Filter
-              </Button>
-            </div>
-          </div>
-
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
             <Icon icon="mdi:information" className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
             <span>
-              แสดง {paginatedUsers.length} จาก {filteredUsers.length} คน (ทั้งหมด {allUsers.length} คน)
+              แสดง {users.length} รายการ (ทั้งหมด {totalCount.toLocaleString()} คน)
             </span>
           </div>
         </div>
@@ -478,7 +324,7 @@ export default function Home() {
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedUsers.map((user) => {
+                users.map((user) => {
                   const leadStage = calculateLeadStage(
                     user.created_time,
                     user.user_status.add_payment,
