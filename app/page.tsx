@@ -105,7 +105,8 @@ export default function Home() {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetchUsers(1, 1000, search);
+      // Load all users by requesting a large page size
+      const response = await fetchUsers(1, 10000, search);
       setAllUsers(response.data);
     } catch (error) {
       console.error('Error loading users:', error);
@@ -353,7 +354,7 @@ export default function Home() {
             <div>
               <Label className="mb-1.5 block text-xs sm:text-sm font-medium">Lead Stage</Label>
               <Select value={leadStageFilter} onValueChange={setLeadStageFilter}>
-                <SelectTrigger className="text-xs sm:text-sm">
+                <SelectTrigger className="w-full text-xs sm:text-sm">
                   <SelectValue placeholder="ทั้งหมด" />
                 </SelectTrigger>
                 <SelectContent>
@@ -371,7 +372,7 @@ export default function Home() {
             <div>
               <Label className="mb-1.5 block text-xs sm:text-sm font-medium">Bot Status</Label>
               <Select value={botStatusFilter} onValueChange={setBotStatusFilter}>
-                <SelectTrigger className="text-xs sm:text-sm">
+                <SelectTrigger className="w-full text-xs sm:text-sm">
                   <SelectValue placeholder="ทั้งหมด" />
                 </SelectTrigger>
                 <SelectContent>
@@ -386,7 +387,7 @@ export default function Home() {
             <div>
               <Label className="mb-1.5 block text-xs sm:text-sm font-medium">Payment</Label>
               <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-                <SelectTrigger className="text-xs sm:text-sm">
+                <SelectTrigger className="w-full text-xs sm:text-sm">
                   <SelectValue placeholder="ทั้งหมด" />
                 </SelectTrigger>
                 <SelectContent>
@@ -400,7 +401,7 @@ export default function Home() {
             <div>
               <Label className="mb-1.5 block text-xs sm:text-sm font-medium">Package</Label>
               <Select value={packageFilter} onValueChange={setPackageFilter}>
-                <SelectTrigger className="text-xs sm:text-sm">
+                <SelectTrigger className="w-full text-xs sm:text-sm">
                   <SelectValue placeholder="ทั้งหมด" />
                 </SelectTrigger>
                 <SelectContent>
