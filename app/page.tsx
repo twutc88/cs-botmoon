@@ -57,6 +57,9 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [clientPage, setClientPage] = useState(1);
+  const ITEMS_PER_PAGE = 20;
   const [selectedUser, setSelectedUser] = useState<UserDetail | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [actionType, setActionType] = useState('');
@@ -85,11 +88,16 @@ export default function Home() {
   }, [isAuthenticated, search, page]);
 
   useEffect(() => {
-    if (users.length > 0) {
+    if (allUsers.length > 0) {
       loadLatestActions();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [users.length]);
+  }, [allUsers.length]);
+
+  useEffect(() => {
+    // Reset client page when filters change
+    setClientPage(1);
+  }, [leadStageFilter, botStatusFilter, paymentFilter, packageFilter]);
 
   const handleLogin = () => {
     if (password === PASSWORD) {
@@ -108,10 +116,12 @@ export default function Home() {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetchUsers(page, 20, search);
-      setUsers(response.data);
+      // Load more data per page for better filtering (100 items)
+      const response = await fetchUsers(page, 100, search);
+      setAllUsers(response.data);
       setTotalPages(response.pagination.max_page);
       setTotalCount(response.pagination.total_count);
+      setClientPage(1); // Reset client page when loading new data
     } catch (error) {
       console.error('Error loading users:', error);
     } finally {
@@ -120,11 +130,13 @@ export default function Home() {
   };
 
   const loadLatestActions = async () => {
-    if (users.length === 0) return;
+    if (allUsers.length === 0) return;
     
     const actions: Record<number, string> = {};
+    // Load actions for visible users only to avoid too many requests
+    const visibleUsers = allUsers.slice(0, 20);
     await Promise.all(
-      users.map(async (user) => {
+      visibleUsers.map(async (user) => {
         try {
           const latest = await getLatestAction(user.id);
           if (latest) {
@@ -230,7 +242,7 @@ export default function Home() {
 
   // Filter users based on selected filters (client-side)
   const filteredUsers = useMemo(() => {
-    return users.filter((user) => {
+    return allUsers.filter((user) => {
       const leadStage = calculateLeadStage(
         user.created_time,
         user.user_status.add_payment,
@@ -265,7 +277,16 @@ export default function Home() {
 
       return true;
     });
-  }, [users, leadStageFilter, botStatusFilter, paymentFilter, packageFilter]);
+  }, [allUsers, leadStageFilter, botStatusFilter, paymentFilter, packageFilter]);
+
+  // Paginate filtered users (client-side)
+  const paginatedUsers = useMemo(() => {
+    const startIndex = (clientPage - 1) * ITEMS_PER_PAGE;
+    const endIndex = startIndex + ITEMS_PER_PAGE;
+    return filteredUsers.slice(startIndex, endIndex);
+  }, [filteredUsers, clientPage]);
+
+  const totalFilteredPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
 
   const hasActiveFilters = leadStageFilter !== 'all' || botStatusFilter !== 'all' || paymentFilter !== 'all' || packageFilter !== 'all';
 
@@ -274,6 +295,7 @@ export default function Home() {
     setBotStatusFilter('all');
     setPaymentFilter('all');
     setPackageFilter('all');
+    setClientPage(1);
   };
 
   if (!isAuthenticated) {
@@ -427,7 +449,7 @@ export default function Home() {
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
             <Icon icon="mdi:database" className="h-4 w-4 flex-shrink-0" />
             <span>
-              แสดง {filteredUsers.length} รายการจาก {totalCount.toLocaleString()} คน
+              แสดง {paginatedUsers.length} รายการ (กรองได้ {filteredUsers.length} จาก {totalCount.toLocaleString()} คน)
               {hasActiveFilters && <span className="ml-2 text-blue-600 font-medium">(มีการกรอง)</span>}
             </span>
           </div>
@@ -455,7 +477,7 @@ export default function Home() {
                     กำลังโหลดข้อมูล...
                   </TableCell>
                 </TableRow>
-              ) : users.length === 0 ? (
+              ) : filteredUsers.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-6 sm:py-8 text-gray-500 text-xs sm:text-sm">
                     <Icon icon="mdi:database-off" className="inline-block h-5 w-5 sm:h-6 sm:w-6 mr-2" />
@@ -463,7 +485,7 @@ export default function Home() {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredUsers.map((user) => {
+                paginatedUsers.map((user) => {
                   const leadStage = calculateLeadStage(
                     user.created_time,
                     user.user_status.add_payment,
@@ -523,14 +545,25 @@ export default function Home() {
 
         <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="text-xs sm:text-sm text-gray-600">
-            หน้า {page} จาก {totalPages}
+            {hasActiveFilters ? (
+              <>หน้า {clientPage} จาก {totalFilteredPages} (ข้อมูลที่กรอง)</>
+            ) : (
+              <>หน้า {clientPage} จาก {totalFilteredPages} | API หน้า {page} จาก {totalPages}</>
+            )}
           </div>
           <div className="flex gap-2">
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1 || loading}
+              onClick={() => {
+                if (clientPage > 1) {
+                  setClientPage((p) => p - 1);
+                } else if (page > 1) {
+                  setPage((p) => p - 1);
+                  setClientPage(1);
+                }
+              }}
+              disabled={(clientPage === 1 && page === 1) || loading}
               className="text-xs sm:text-sm"
             >
               <Icon icon="mdi:chevron-left" className="h-4 w-4 sm:mr-1" />
@@ -539,8 +572,15 @@ export default function Home() {
             <Button
               variant="outline"
               size="sm"
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages || loading}
+              onClick={() => {
+                if (clientPage < totalFilteredPages) {
+                  setClientPage((p) => p + 1);
+                } else if (page < totalPages) {
+                  setPage((p) => p + 1);
+                  setClientPage(1);
+                }
+              }}
+              disabled={(clientPage === totalFilteredPages && page === totalPages) || loading}
               className="text-xs sm:text-sm"
             >
               <span className="hidden sm:inline">ถัดไป</span>
