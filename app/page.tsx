@@ -71,7 +71,6 @@ export default function Home() {
     const auth = localStorage.getItem('cs_auth');
     if (auth === 'true') {
       setIsAuthenticated(true);
-      loadUsers();
     }
   }, []);
 
@@ -79,13 +78,13 @@ export default function Home() {
     if (isAuthenticated) {
       loadUsers();
     }
-  }, [search]);
+  }, [isAuthenticated, search]);
 
   useEffect(() => {
     if (isAuthenticated && allUsers.length > 0) {
       loadLatestActions();
     }
-  }, [allUsers]);
+  }, [allUsers, isAuthenticated]);
 
   const handleLogin = () => {
     if (password === PASSWORD) {
