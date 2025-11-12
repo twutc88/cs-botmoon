@@ -346,7 +346,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-14 items-center justify-between px-4">
+        <div className="flex h-14 items-center justify-between px-6">
           <div className="flex items-center gap-2">
             <Icon icon="mdi:account-group" className="h-5 w-5 text-primary" />
             <h1 className="text-lg font-semibold">CS Customer Report</h1>
@@ -358,7 +358,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="container px-4 py-6">
+      <main className="w-full px-6 py-6">
         {/* Search and Filters */}
         <div className="mb-6 space-y-4">
           <div className="flex items-center gap-4">
