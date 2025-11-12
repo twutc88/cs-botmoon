@@ -67,6 +67,52 @@ export default function Home() {
   const [botStatusFilter, setBotStatusFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [packageFilter, setPackageFilter] = useState('all');
+  
+  // Filter users on client-side
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const leadStage = calculateLeadStage(
+        user.created_time,
+        user.user_status.add_payment,
+        user.user_status.bot_is_running
+      );
+
+      // Lead Stage filter
+      if (leadStageFilter !== 'all' && leadStage.stage !== leadStageFilter) {
+        return false;
+      }
+
+      // Bot Status filter
+      if (botStatusFilter !== 'all') {
+        if (botStatusFilter === 'active' && !user.user_status.bot_is_running) return false;
+        if (botStatusFilter === 'paused' && (user.user_status.bot_is_running || !user.user_status.has_robot)) return false;
+        if (botStatusFilter === 'no-bot' && user.user_status.has_robot) return false;
+      }
+
+      // Payment filter
+      if (paymentFilter !== 'all') {
+        if (paymentFilter === 'paid' && !user.user_status.add_payment) return false;
+        if (paymentFilter === 'unpaid' && user.user_status.add_payment) return false;
+      }
+
+      // Package filter
+      if (packageFilter !== 'all') {
+        if (packageFilter === 'basic' && user.package !== 'Basic') return false;
+        if (packageFilter === 'elite' && user.package !== 'Elite') return false;
+        if (packageFilter === 'premium' && user.package !== 'Premium') return false;
+        if (packageFilter === 'none' && user.package) return false;
+      }
+
+      return true;
+    });
+  }, [users, leadStageFilter, botStatusFilter, paymentFilter, packageFilter]);
+
+  const clearFilters = () => {
+    setLeadStageFilter('all');
+    setBotStatusFilter('all');
+    setPaymentFilter('all');
+    setPackageFilter('all');
+  };
   const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
