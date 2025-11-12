@@ -283,12 +283,12 @@ export default function Home() {
 
   if (!isAuthenticated) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
+      <div className="flex min-h-screen items-center justify-center bg-gray-50 p-4">
+        <div className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-6 sm:p-8">
           <div className="mb-6 flex items-center justify-center">
-            <Icon icon="mdi:shield-lock" className="h-12 w-12 text-blue-600" />
+            <Icon icon="mdi:shield-lock" className="h-10 w-10 sm:h-12 sm:w-12 text-blue-600" />
           </div>
-          <h1 className="mb-6 text-center text-2xl font-bold text-gray-900">CS Dashboard Login</h1>
+          <h1 className="mb-6 text-center text-xl sm:text-2xl font-bold text-gray-900">CS Dashboard Login</h1>
           <div className="space-y-4">
             <div>
               <Label htmlFor="password" className="mb-2 block text-sm font-medium text-gray-700">
@@ -305,7 +305,7 @@ export default function Home() {
               />
             </div>
             <Button onClick={handleLogin} className="w-full">
-              <Icon icon="mdi:login" className="mr-2 h-5 w-5" />
+              <Icon icon="mdi:login" className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
               เข้าสู่ระบบ
             </Button>
           </div>
@@ -316,25 +316,25 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="border-b bg-white px-6 py-4 shadow-sm">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Icon icon="mdi:account-group" className="h-8 w-8 text-blue-600" />
-            <h1 className="text-2xl font-bold text-gray-900">CS Customer Report</h1>
+      <div className="border-b border-gray-200 bg-white px-4 py-3 sm:px-6 sm:py-4">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Icon icon="mdi:account-group" className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
+            <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-900">CS Customer Report</h1>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
-            <Icon icon="mdi:logout" className="mr-2 h-5 w-5" />
-            ออกจากระบบ
+          <Button variant="outline" onClick={handleLogout} size="sm" className="sm:h-10">
+            <Icon icon="mdi:logout" className="h-4 w-4 sm:mr-2 sm:h-5 sm:w-5" />
+            <span className="hidden sm:inline">ออกจากระบบ</span>
           </Button>
         </div>
       </div>
 
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {/* Search and Filters */}
-        <div className="mb-4 space-y-4">
-          <div className="flex gap-4">
+        <div className="mb-4 space-y-3 sm:space-y-4">
+          <div className="flex gap-2 sm:gap-4">
             <div className="relative flex-1">
-              <Icon icon="mdi:magnify" className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+              <Icon icon="mdi:magnify" className="absolute left-3 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 text-gray-400" />
               <Input
                 placeholder="ค้นหาลูกค้า..."
                 value={search}
@@ -342,17 +342,17 @@ export default function Home() {
                   setSearch(e.target.value);
                   setPage(1);
                 }}
-                className="w-full pl-10"
+                className="w-full pl-9 sm:pl-10"
               />
             </div>
           </div>
 
           {/* Filters Row */}
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-5">
+          <div className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-5 md:gap-4">
             <div>
-              <Label className="mb-2 block text-sm font-medium">Lead Stage</Label>
+              <Label className="mb-1.5 block text-xs sm:text-sm font-medium">Lead Stage</Label>
               <Select value={leadStageFilter} onValueChange={setLeadStageFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="text-xs sm:text-sm">
                   <SelectValue placeholder="ทั้งหมด" />
                 </SelectTrigger>
                 <SelectContent>
@@ -368,9 +368,9 @@ export default function Home() {
             </div>
 
             <div>
-              <Label className="mb-2 block text-sm font-medium">Bot Status</Label>
+              <Label className="mb-1.5 block text-xs sm:text-sm font-medium">Bot Status</Label>
               <Select value={botStatusFilter} onValueChange={setBotStatusFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="text-xs sm:text-sm">
                   <SelectValue placeholder="ทั้งหมด" />
                 </SelectTrigger>
                 <SelectContent>
@@ -383,9 +383,9 @@ export default function Home() {
             </div>
 
             <div>
-              <Label className="mb-2 block text-sm font-medium">Payment</Label>
+              <Label className="mb-1.5 block text-xs sm:text-sm font-medium">Payment</Label>
               <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="text-xs sm:text-sm">
                   <SelectValue placeholder="ทั้งหมด" />
                 </SelectTrigger>
                 <SelectContent>
@@ -397,9 +397,9 @@ export default function Home() {
             </div>
 
             <div>
-              <Label className="mb-2 block text-sm font-medium">Package</Label>
+              <Label className="mb-1.5 block text-xs sm:text-sm font-medium">Package</Label>
               <Select value={packageFilter} onValueChange={setPackageFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="text-xs sm:text-sm">
                   <SelectValue placeholder="ทั้งหมด" />
                 </SelectTrigger>
                 <SelectContent>
@@ -412,48 +412,48 @@ export default function Home() {
               </Select>
             </div>
 
-            <div className="flex items-end">
-              <Button variant="outline" onClick={clearFilters} className="w-full">
-                <Icon icon="mdi:filter-remove" className="mr-2 h-5 w-5" />
+            <div className="col-span-2 md:col-span-1 flex items-end">
+              <Button variant="outline" onClick={clearFilters} className="w-full text-xs sm:text-sm">
+                <Icon icon="mdi:filter-remove" className="mr-1 sm:mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                 ล้าง Filter
               </Button>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Icon icon="mdi:information" className="h-4 w-4" />
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+            <Icon icon="mdi:information" className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
             <span>
               แสดง {paginatedUsers.length} จาก {filteredUsers.length} คน (ทั้งหมด {allUsers.length} คน)
             </span>
           </div>
         </div>
 
-        <div className="rounded-lg border bg-white shadow-sm">
+        <div className="rounded-lg border border-gray-200 bg-white overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Lead Stage</TableHead>
-                <TableHead>Status Action</TableHead>
-                <TableHead>Bot Status</TableHead>
-                <TableHead>Add Payment</TableHead>
-                <TableHead>Package</TableHead>
-                <TableHead>Joined Date</TableHead>
+              <TableRow className="bg-gray-50">
+                <TableHead className="text-xs sm:text-sm whitespace-nowrap">User</TableHead>
+                <TableHead className="text-xs sm:text-sm whitespace-nowrap">Contact</TableHead>
+                <TableHead className="text-xs sm:text-sm whitespace-nowrap">Lead Stage</TableHead>
+                <TableHead className="text-xs sm:text-sm whitespace-nowrap">Status Action</TableHead>
+                <TableHead className="text-xs sm:text-sm whitespace-nowrap">Bot Status</TableHead>
+                <TableHead className="text-xs sm:text-sm whitespace-nowrap">Payment</TableHead>
+                <TableHead className="text-xs sm:text-sm whitespace-nowrap">Package</TableHead>
+                <TableHead className="text-xs sm:text-sm whitespace-nowrap">Joined Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-gray-500">
-                    <Icon icon="mdi:loading" className="inline-block h-6 w-6 animate-spin mr-2" />
+                  <TableCell colSpan={8} className="text-center py-6 sm:py-8 text-gray-500 text-xs sm:text-sm">
+                    <Icon icon="mdi:loading" className="inline-block h-5 w-5 sm:h-6 sm:w-6 animate-spin mr-2" />
                     กำลังโหลดข้อมูล...
                   </TableCell>
                 </TableRow>
               ) : paginatedUsers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-gray-500">
-                    <Icon icon="mdi:database-off" className="inline-block h-6 w-6 mr-2" />
+                  <TableCell colSpan={8} className="text-center py-6 sm:py-8 text-gray-500 text-xs sm:text-sm">
+                    <Icon icon="mdi:database-off" className="inline-block h-5 w-5 sm:h-6 sm:w-6 mr-2" />
                     ไม่พบข้อมูล
                   </TableCell>
                 </TableRow>
@@ -470,43 +470,44 @@ export default function Home() {
                   return (
                     <TableRow
                       key={user.id}
-                      className="cursor-pointer hover:bg-gray-50"
+                      className="cursor-pointer hover:bg-gray-50 transition-colors"
                       onClick={() => handleUserClick(user)}
                     >
-                      <TableCell className="font-medium">
-                        ID: #{user.id}
-                        <br />
-                        <span className="text-sm text-gray-500">{formatUserName(user)}</span>
+                      <TableCell className="font-medium text-xs sm:text-sm whitespace-nowrap">
+                        <div className="flex flex-col">
+                          <span>ID: #{user.id}</span>
+                          <span className="text-xs text-gray-500">{formatUserName(user)}</span>
+                        </div>
                       </TableCell>
-                      <TableCell>{formatContact(user)}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="flex items-center gap-1 w-fit">
-                          <Icon icon={leadStageIcon.icon} className={`h-3 w-3 ${leadStageIcon.color}`} />
-                          {leadStage.label}
+                      <TableCell className="text-xs sm:text-sm whitespace-nowrap">{formatContact(user)}</TableCell>
+                      <TableCell className="whitespace-nowrap">
+                        <Badge variant="outline" className="flex items-center gap-1 w-fit text-xs">
+                          <Icon icon={leadStageIcon.icon} className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${leadStageIcon.color}`} />
+                          <span className="hidden sm:inline">{leadStage.label}</span>
                         </Badge>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-xs sm:text-sm whitespace-nowrap">
                         {latestActions[user.id] ? (
-                          <Badge variant="secondary">{latestActions[user.id]}</Badge>
+                          <Badge variant="secondary" className="text-xs">{latestActions[user.id]}</Badge>
                         ) : (
                           <span className="text-gray-400">-</span>
                         )}
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Icon icon={botStatus.icon} className={`h-5 w-5 ${botStatus.color}`} />
-                          <span className="text-sm">{botStatus.label}</span>
+                      <TableCell className="whitespace-nowrap">
+                        <div className="flex items-center gap-1.5 sm:gap-2">
+                          <Icon icon={botStatus.icon} className={`h-4 w-4 sm:h-5 sm:w-5 ${botStatus.color}`} />
+                          <span className="text-xs sm:text-sm hidden md:inline">{botStatus.label}</span>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-center">
                         {user.user_status.add_payment ? (
-                          <Icon icon="mdi:check-circle" className="h-5 w-5 text-green-500" />
+                          <Icon icon="mdi:check-circle" className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 mx-auto" />
                         ) : (
-                          <Icon icon="mdi:close-circle" className="h-5 w-5 text-red-500" />
+                          <Icon icon="mdi:close-circle" className="h-4 w-4 sm:h-5 sm:w-5 text-red-500 mx-auto" />
                         )}
                       </TableCell>
-                      <TableCell>{user.package || '-'}</TableCell>
-                      <TableCell>{formatDate(user.created_time)}</TableCell>
+                      <TableCell className="text-xs sm:text-sm whitespace-nowrap">{user.package || '-'}</TableCell>
+                      <TableCell className="text-xs sm:text-sm whitespace-nowrap">{formatDate(user.created_time)}</TableCell>
                     </TableRow>
                   );
                 })
@@ -515,91 +516,95 @@ export default function Home() {
           </Table>
         </div>
 
-        <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-gray-600">
+        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="text-xs sm:text-sm text-gray-600">
             หน้า {page} จาก {totalPages}
           </div>
           <div className="flex gap-2">
             <Button
               variant="outline"
+              size="sm"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1 || loading}
+              className="text-xs sm:text-sm"
             >
-              <Icon icon="mdi:chevron-left" className="h-5 w-5 mr-1" />
-              ก่อนหน้า
+              <Icon icon="mdi:chevron-left" className="h-4 w-4 sm:mr-1" />
+              <span className="hidden sm:inline">ก่อนหน้า</span>
             </Button>
             <Button
               variant="outline"
+              size="sm"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages || loading}
+              className="text-xs sm:text-sm"
             >
-              ถัดไป
-              <Icon icon="mdi:chevron-right" className="h-5 w-5 ml-1" />
+              <span className="hidden sm:inline">ถัดไป</span>
+              <Icon icon="mdi:chevron-right" className="h-4 w-4 sm:ml-1" />
             </Button>
           </div>
         </div>
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Icon icon="mdi:account-details" className="h-6 w-6 text-blue-600" />
+            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
+              <Icon icon="mdi:account-details" className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
               รายละเอียดลูกค้า
             </DialogTitle>
-            <DialogDescription>ID: #{selectedUser?.id}</DialogDescription>
+            <DialogDescription className="text-sm">ID: #{selectedUser?.id}</DialogDescription>
           </DialogHeader>
 
           {selectedUser && (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">ชื่อ</Label>
-                  <p className="text-gray-900">{selectedUser.nickname || '-'}</p>
+                  <Label className="text-xs sm:text-sm font-medium text-gray-700">ชื่อ</Label>
+                  <p className="text-sm sm:text-base text-gray-900 break-words">{selectedUser.nickname || '-'}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Email</Label>
-                  <p className="text-gray-900">{selectedUser.email || '-'}</p>
+                  <Label className="text-xs sm:text-sm font-medium text-gray-700">Email</Label>
+                  <p className="text-sm sm:text-base text-gray-900 break-all">{selectedUser.email || '-'}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">เบอร์โทร</Label>
-                  <p className="text-gray-900">
+                  <Label className="text-xs sm:text-sm font-medium text-gray-700">เบอร์โทร</Label>
+                  <p className="text-sm sm:text-base text-gray-900">
                     {selectedUser.mobile_code && selectedUser.mobile_no
                       ? `${selectedUser.mobile_code} ${selectedUser.mobile_no}`
                       : '-'}
                   </p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Package</Label>
-                  <p className="text-gray-900">{selectedUser.package || '-'}</p>
+                  <Label className="text-xs sm:text-sm font-medium text-gray-700">Package</Label>
+                  <p className="text-sm sm:text-base text-gray-900">{selectedUser.package || '-'}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">Rank</Label>
-                  <p className="text-gray-900">{selectedUser.rank || '-'}</p>
+                  <Label className="text-xs sm:text-sm font-medium text-gray-700">Rank</Label>
+                  <p className="text-sm sm:text-base text-gray-900">{selectedUser.rank || '-'}</p>
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-gray-700">วันที่สมัคร</Label>
-                  <p className="text-gray-900">{formatDate(selectedUser.created_time)}</p>
+                  <Label className="text-xs sm:text-sm font-medium text-gray-700">วันที่สมัคร</Label>
+                  <p className="text-sm sm:text-base text-gray-900">{formatDate(selectedUser.created_time)}</p>
                 </div>
               </div>
 
-              <div className="border-t pt-4">
-                <h3 className="mb-4 font-semibold text-gray-900 flex items-center gap-2">
-                  <Icon icon="mdi:note-edit" className="h-5 w-5 text-blue-600" />
+              <div className="border-t border-gray-200 pt-4">
+                <h3 className="mb-3 sm:mb-4 text-sm sm:text-base font-semibold text-gray-900 flex items-center gap-2">
+                  <Icon icon="mdi:note-edit" className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                   บันทึก Action
                 </h3>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
-                    <Label className="mb-2 block text-sm font-medium text-gray-700">
+                    <Label className="mb-1.5 sm:mb-2 block text-xs sm:text-sm font-medium text-gray-700">
                       ประเภท Action
                     </Label>
                     <Select value={actionType} onValueChange={setActionType}>
-                      <SelectTrigger>
+                      <SelectTrigger className="text-xs sm:text-sm">
                         <SelectValue placeholder="เลือกประเภท Action" />
                       </SelectTrigger>
                       <SelectContent>
                         {ACTION_TYPES.map((type) => (
-                          <SelectItem key={type} value={type}>
+                          <SelectItem key={type} value={type} className="text-xs sm:text-sm">
                             {type}
                           </SelectItem>
                         ))}
@@ -607,41 +612,42 @@ export default function Home() {
                     </Select>
                   </div>
                   <div>
-                    <Label className="mb-2 block text-sm font-medium text-gray-700">Note</Label>
+                    <Label className="mb-1.5 sm:mb-2 block text-xs sm:text-sm font-medium text-gray-700">Note</Label>
                     <Textarea
                       value={note}
                       onChange={(e) => setNote(e.target.value)}
                       placeholder="กรอกหมายเหตุ..."
                       rows={4}
+                      className="text-xs sm:text-sm"
                     />
                   </div>
-                  <Button onClick={handleSaveAction} className="w-full">
-                    <Icon icon="mdi:content-save" className="mr-2 h-5 w-5" />
+                  <Button onClick={handleSaveAction} className="w-full text-xs sm:text-sm">
+                    <Icon icon="mdi:content-save" className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
                     บันทึก
                   </Button>
                 </div>
               </div>
 
               {actionHistory.length > 0 && (
-                <div className="border-t pt-4">
-                  <h3 className="mb-4 font-semibold text-gray-900 flex items-center gap-2">
-                    <Icon icon="mdi:history" className="h-5 w-5 text-blue-600" />
+                <div className="border-t border-gray-200 pt-4">
+                  <h3 className="mb-3 sm:mb-4 text-sm sm:text-base font-semibold text-gray-900 flex items-center gap-2">
+                    <Icon icon="mdi:history" className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600" />
                     ประวัติ Action
                   </h3>
                   <div className="space-y-2">
                     {actionHistory.map((action) => (
                       <div
                         key={action.id}
-                        className="rounded-lg border bg-gray-50 p-3 text-sm"
+                        className="rounded-lg border border-gray-200 bg-gray-50 p-2.5 sm:p-3"
                       >
-                        <div className="flex items-center justify-between">
-                          <Badge variant="secondary">{action.action_type}</Badge>
-                          <span className="text-gray-500">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1.5 sm:gap-0">
+                          <Badge variant="secondary" className="text-xs w-fit">{action.action_type}</Badge>
+                          <span className="text-xs text-gray-500">
                             {formatDate(action.created_at)}
                           </span>
                         </div>
                         {action.note && (
-                          <p className="mt-2 text-gray-700">{action.note}</p>
+                          <p className="mt-2 text-xs sm:text-sm text-gray-700 break-words">{action.note}</p>
                         )}
                       </div>
                     ))}
