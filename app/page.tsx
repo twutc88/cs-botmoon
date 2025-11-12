@@ -270,12 +270,12 @@ export default function Home() {
 
       <div className="p-4 sm:p-6">
         {/* Search */}
-        <div className="mb-4 space-y-3 sm:space-y-4">
+        <div className="mb-4">
           <div className="flex gap-2 sm:gap-4">
             <div className="relative flex-1">
               <Icon icon="mdi:magnify" className="absolute left-3 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 text-gray-400" />
               <Input
-                placeholder="ค้นหาลูกค้า..."
+                placeholder="ค้นหาลูกค้า (ID, ชื่อ, Email, เบอร์โทร)..."
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
@@ -286,11 +286,13 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
-            <Icon icon="mdi:information" className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
-            <span>
-              แสดง {users.length} รายการ (ทั้งหมด {totalCount.toLocaleString()} คน)
-            </span>
+          <div className="mt-3 flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+              <Icon icon="mdi:information" className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0" />
+              <span>
+                แสดงหน้า {page} ({users.length} รายการ) / ทั้งหมด {totalCount.toLocaleString()} คน
+              </span>
+            </div>
           </div>
         </div>
 
