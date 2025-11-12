@@ -90,9 +90,8 @@ export default function Home() {
 
   const handleLogin = () => {
     if (password === PASSWORD) {
-      setIsAuthenticated(true);
       localStorage.setItem('cs_auth', 'true');
-      loadUsers();
+      setIsAuthenticated(true);
     } else {
       alert('รหัสผ่านไม่ถูกต้อง');
     }
@@ -176,8 +175,7 @@ export default function Home() {
         }));
       }
 
-      // Reload users to update action status
-      loadUsers();
+      // Don't reload users to avoid unnecessary API calls
     } catch (error) {
       console.error('Error saving action:', error);
       alert('เกิดข้อผิดพลาดในการบันทึก');
