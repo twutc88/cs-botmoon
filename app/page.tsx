@@ -82,7 +82,7 @@ export default function Home() {
       loadUsers();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated, search, page, leadStageFilter, botStatusFilter, paymentFilter, packageFilter]);
+  }, [isAuthenticated, search, page]);
 
   useEffect(() => {
     if (users.length > 0) {
@@ -108,12 +108,7 @@ export default function Home() {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetchUsers(page, 20, search, {
-        leadStage: leadStageFilter,
-        botStatus: botStatusFilter,
-        payment: paymentFilter,
-        package: packageFilter,
-      });
+      const response = await fetchUsers(page, 20, search);
       setUsers(response.data);
       setTotalPages(response.pagination.max_page);
       setTotalCount(response.pagination.total_count);
@@ -232,6 +227,45 @@ export default function Home() {
     if (user.nickname) return user.nickname;
     return user.email || `ID: #${user.id}`;
   };
+
+  // Filter users based on selected filters (client-side)
+  const filteredUsers = useMemo(() => {
+    return users.filter((user) => {
+      const leadStage = calculateLeadStage(
+        user.created_time,
+        user.user_status.add_payment,
+        user.user_status.bot_is_running
+      );
+
+      // Lead Stage filter
+      if (leadStageFilter !== 'all' && leadStage.stage !== leadStageFilter) {
+        return false;
+      }
+
+      // Bot Status filter
+      if (botStatusFilter !== 'all') {
+        if (botStatusFilter === 'active' && !user.user_status.bot_is_running) return false;
+        if (botStatusFilter === 'paused' && (user.user_status.bot_is_running || !user.user_status.has_robot)) return false;
+        if (botStatusFilter === 'no-bot' && user.user_status.has_robot) return false;
+      }
+
+      // Payment filter
+      if (paymentFilter !== 'all') {
+        if (paymentFilter === 'paid' && !user.user_status.add_payment) return false;
+        if (paymentFilter === 'unpaid' && user.user_status.add_payment) return false;
+      }
+
+      // Package filter
+      if (packageFilter !== 'all') {
+        if (packageFilter === 'basic' && user.package !== 'Basic') return false;
+        if (packageFilter === 'elite' && user.package !== 'Elite') return false;
+        if (packageFilter === 'premium' && user.package !== 'Premium') return false;
+        if (packageFilter === 'none' && user.package) return false;
+      }
+
+      return true;
+    });
+  }, [users, leadStageFilter, botStatusFilter, paymentFilter, packageFilter]);
 
   const hasActiveFilters = leadStageFilter !== 'all' || botStatusFilter !== 'all' || paymentFilter !== 'all' || packageFilter !== 'all';
 
@@ -393,7 +427,7 @@ export default function Home() {
           <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
             <Icon icon="mdi:database" className="h-4 w-4 flex-shrink-0" />
             <span>
-              แสดง {users.length} รายการจาก {totalCount.toLocaleString()} คน
+              แสดง {filteredUsers.length} รายการจาก {totalCount.toLocaleString()} คน
               {hasActiveFilters && <span className="ml-2 text-blue-600 font-medium">(มีการกรอง)</span>}
             </span>
           </div>
@@ -429,7 +463,7 @@ export default function Home() {
                   </TableCell>
                 </TableRow>
               ) : (
-                users.map((user) => {
+                filteredUsers.map((user) => {
                   const leadStage = calculateLeadStage(
                     user.created_time,
                     user.user_status.add_payment,

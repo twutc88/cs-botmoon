@@ -38,36 +38,9 @@ export interface UsersResponse {
 export async function fetchUsers(
   page: number = 1,
   pageSize: number = 20,
-  search: string = '',
-  filters?: {
-    leadStage?: string;
-    botStatus?: string;
-    payment?: string;
-    package?: string;
-  }
+  search: string = ''
 ): Promise<UsersResponse> {
-  const params = new URLSearchParams({
-    page: page.toString(),
-    page_size: pageSize.toString(),
-    search: search,
-  });
-  
-  if (filters) {
-    if (filters.leadStage && filters.leadStage !== 'all') {
-      params.append('lead_stage', filters.leadStage);
-    }
-    if (filters.botStatus && filters.botStatus !== 'all') {
-      params.append('bot_status', filters.botStatus);
-    }
-    if (filters.payment && filters.payment !== 'all') {
-      params.append('payment', filters.payment);
-    }
-    if (filters.package && filters.package !== 'all') {
-      params.append('package', filters.package);
-    }
-  }
-  
-  const url = `${API_BASE}/users?${params.toString()}`;
+  const url = `${API_BASE}/users?page=${page}&page_size=${pageSize}&search=${encodeURIComponent(search)}`;
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error('Failed to fetch users');
