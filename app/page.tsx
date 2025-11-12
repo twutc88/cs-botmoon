@@ -318,7 +318,7 @@ export default function Home() {
                     กำลังโหลดข้อมูล...
                   </TableCell>
                 </TableRow>
-              ) : paginatedUsers.length === 0 ? (
+              ) : users.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-6 sm:py-8 text-gray-500 text-xs sm:text-sm">
                     <Icon icon="mdi:database-off" className="inline-block h-5 w-5 sm:h-6 sm:w-6 mr-2" />
