@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CS Customer Report Dashboard
 
-## Getting Started
+Dashboard สำหรับทีม CS ของ botmoon.com เพื่อใช้โทรหาลูกค้า
 
-First, run the development server:
+## Features
 
+- 🔐 Login ด้วยรหัสผ่าน
+- 📊 ตารางแสดงรายชื่อลูกค้า
+- 🔍 ค้นหาลูกค้า
+- 📄 Pagination
+- 📝 บันทึก Action และ Note สำหรับแต่ละลูกค้า
+- 📈 คำนวณ Lead Stage อัตโนมัติ
+- 💾 เก็บข้อมูล Action ใน Supabase
+
+## Setup
+
+1. ติดตั้ง dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. สร้างไฟล์ `.env.local`:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. รัน development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. เปิดเบราว์เซอร์ไปที่ [http://localhost:3000](http://localhost:3000)
 
-## Learn More
+## Login
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+รหัสผ่าน: `Tothemoon88#`
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Push code ไปยัง GitHub
+2. Connect project ใน Vercel
+3. เพิ่ม Environment Variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+4. Deploy
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Tech Stack
+
+- Next.js 16 (App Router)
+- TypeScript
+- Tailwind CSS
+- shadcn-ui
+- Supabase
+- date-fns
