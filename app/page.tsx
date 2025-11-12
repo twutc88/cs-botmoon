@@ -78,13 +78,15 @@ export default function Home() {
     if (isAuthenticated) {
       loadUsers();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, search]);
 
   useEffect(() => {
-    if (isAuthenticated && allUsers.length > 0) {
+    if (allUsers.length > 0) {
       loadLatestActions();
     }
-  }, [allUsers, isAuthenticated]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allUsers.length]);
 
   const handleLogin = () => {
     if (password === PASSWORD) {
@@ -108,13 +110,14 @@ export default function Home() {
       setAllUsers(response.data);
     } catch (error) {
       console.error('Error loading users:', error);
-      alert('เกิดข้อผิดพลาดในการโหลดข้อมูล');
     } finally {
       setLoading(false);
     }
   };
 
   const loadLatestActions = async () => {
+    if (allUsers.length === 0) return;
+    
     const actions: Record<number, string> = {};
     await Promise.all(
       allUsers.slice(0, 100).map(async (user) => {
