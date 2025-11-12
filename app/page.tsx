@@ -30,6 +30,8 @@ import {
 } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
+import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 import { fetchUsers, fetchUserDetail, type User, type UserDetail } from '@/lib/api';
 import { saveAction, getActionsByUserId, getLatestAction, type CustomerAction } from '@/lib/supabase';
 import { calculateLeadStage } from '@/lib/lead-stage';
@@ -311,6 +313,13 @@ export default function Home() {
       return true;
     });
   }, [users, leadStageFilter, botStatusFilter, paymentFilter, packageFilter]);
+
+  const clearFilters = () => {
+    setLeadStageFilter('all');
+    setBotStatusFilter('all');
+    setPaymentFilter('all');
+    setPackageFilter('all');
+  };
 
   const hasActiveFilters = leadStageFilter !== 'all' || botStatusFilter !== 'all' || paymentFilter !== 'all' || packageFilter !== 'all';
 
