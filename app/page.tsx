@@ -387,7 +387,7 @@ export default function Home() {
             <div className="space-y-1.5">
               <Label className="text-xs text-muted-foreground">Lead Stage</Label>
               <Select value={leadStageFilter} onValueChange={setLeadStageFilter}>
-                <SelectTrigger>
+                <SelectTrigger className="w-full">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
