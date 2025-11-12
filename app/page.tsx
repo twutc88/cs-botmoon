@@ -32,9 +32,20 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Card } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { fetchUsers, fetchUserDetail, type User, type UserDetail } from '@/lib/api';
 import { saveAction, getActionsByUserId, getLatestAction, type CustomerAction } from '@/lib/supabase';
 import { calculateLeadStage } from '@/lib/lead-stage';
+import { toast } from 'sonner';
 
 const PASSWORD = 'Tothemoon88#';
 
@@ -103,8 +114,9 @@ export default function Home() {
     if (password === PASSWORD) {
       localStorage.setItem('cs_auth', 'true');
       setIsAuthenticated(true);
+      toast.success('เข้าสู่ระบบสำเร็จ');
     } else {
-      alert('รหัสผ่านไม่ถูกต้อง');
+      toast.error('รหัสผ่านไม่ถูกต้อง');
     }
   };
 
@@ -163,19 +175,19 @@ export default function Home() {
       setActionHistory(history);
     } catch (error) {
       console.error('Error loading user detail:', error);
-      alert('เกิดข้อผิดพลาดในการโหลดข้อมูล');
+      toast.error('เกิดข้อผิดพลาดในการโหลดข้อมูล');
     }
   };
 
   const handleSaveAction = async () => {
     if (!selectedUser || !actionType) {
-      alert('กรุณาเลือกประเภท Action');
+      toast.error('กรุณาเลือกประเภท Action');
       return;
     }
 
     try {
       await saveAction(selectedUser.id, actionType, note);
-      alert('บันทึกสำเร็จ');
+      toast.success('บันทึกสำเร็จ');
       setActionType('');
       setNote('');
 
@@ -195,7 +207,7 @@ export default function Home() {
       // Don't reload users to avoid unnecessary API calls
     } catch (error) {
       console.error('Error saving action:', error);
-      alert('เกิดข้อผิดพลาดในการบันทึก');
+      toast.error('เกิดข้อผิดพลาดในการบันทึก');
     }
   };
 
@@ -471,12 +483,18 @@ export default function Home() {
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="text-center py-6 sm:py-8 text-gray-500 text-xs sm:text-sm">
-                    <Icon icon="mdi:loading" className="inline-block h-5 w-5 sm:h-6 sm:w-6 animate-spin mr-2" />
-                    กำลังโหลดข้อมูล...
-                  </TableCell>
-                </TableRow>
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell><Skeleton className="h-10 w-full" /></TableCell>
+                    <TableCell><Skeleton className="h-10 w-full" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-20" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-16" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-16" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-8" /></TableCell>
+                    <TableCell><Skeleton className="h-6 w-16" /></TableCell>
+                    <TableCell><Skeleton className="h-10 w-full" /></TableCell>
+                  </TableRow>
+                ))
               ) : filteredUsers.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-6 sm:py-8 text-gray-500 text-xs sm:text-sm">
@@ -543,55 +561,61 @@ export default function Home() {
           </Table>
         </div>
 
-        <div className="mt-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="text-xs sm:text-sm text-gray-600">
-            {hasActiveFilters ? (
-              <>หน้า {clientPage} จาก {totalFilteredPages} (ข้อมูลที่กรอง)</>
-            ) : (
-              <>หน้า {clientPage} จาก {totalFilteredPages} | API หน้า {page} จาก {totalPages}</>
+        <Pagination className="mt-6">
+          <PaginationContent>
+            <PaginationItem>
+              <PaginationPrevious
+                onClick={() => {
+                  if (clientPage > 1) {
+                    setClientPage((p) => p - 1);
+                  } else if (page > 1) {
+                    setPage((p) => p - 1);
+                    setClientPage(1);
+                  }
+                }}
+                className={(clientPage === 1 && page === 1) || loading ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
+            </PaginationItem>
+            
+            <PaginationItem>
+              <PaginationLink isActive>
+                {hasActiveFilters ? (
+                  <>{clientPage} / {totalFilteredPages}</>
+                ) : (
+                  <>{clientPage} / {totalFilteredPages}</>
+                )}
+              </PaginationLink>
+            </PaginationItem>
+
+            {!hasActiveFilters && (
+              <PaginationItem>
+                <PaginationLink>
+                  <span className="text-xs text-gray-500">API: {page}/{totalPages}</span>
+                </PaginationLink>
+              </PaginationItem>
             )}
-          </div>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                if (clientPage > 1) {
-                  setClientPage((p) => p - 1);
-                } else if (page > 1) {
-                  setPage((p) => p - 1);
-                  setClientPage(1);
-                }
-              }}
-              disabled={(clientPage === 1 && page === 1) || loading}
-              className="text-xs sm:text-sm"
-            >
-              <Icon icon="mdi:chevron-left" className="h-4 w-4 sm:mr-1" />
-              <span className="hidden sm:inline">ก่อนหน้า</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                if (clientPage < totalFilteredPages) {
-                  setClientPage((p) => p + 1);
-                } else if (page < totalPages) {
-                  setPage((p) => p + 1);
-                  setClientPage(1);
-                }
-              }}
-              disabled={(clientPage === totalFilteredPages && page === totalPages) || loading}
-              className="text-xs sm:text-sm"
-            >
-              <span className="hidden sm:inline">ถัดไป</span>
-              <Icon icon="mdi:chevron-right" className="h-4 w-4 sm:ml-1" />
-            </Button>
-          </div>
-        </div>
+            
+            <PaginationItem>
+              <PaginationNext
+                onClick={() => {
+                  if (clientPage < totalFilteredPages) {
+                    setClientPage((p) => p + 1);
+                  } else if (page < totalPages) {
+                    setPage((p) => p + 1);
+                    setClientPage(1);
+                  }
+                }}
+                className={(clientPage === totalFilteredPages && page === totalPages) || loading ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+              />
+            </PaginationItem>
+          </PaginationContent>
+        </Pagination>
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto mx-4">
+        <DialogContent className="max-w-2xl max-h-[85vh] mx-4 p-0">
+          <ScrollArea className="max-h-[85vh]">
+            <div className="p-6">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-base sm:text-lg">
               <Icon icon="mdi:account-details" className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
@@ -699,8 +723,10 @@ export default function Home() {
                   </div>
                 </div>
               )}
-        </div>
+            </div>
           )}
+            </div>
+          </ScrollArea>
         </DialogContent>
       </Dialog>
     </div>
