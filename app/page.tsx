@@ -69,53 +69,6 @@ export default function Home() {
   const [botStatusFilter, setBotStatusFilter] = useState('all');
   const [paymentFilter, setPaymentFilter] = useState('all');
   const [packageFilter, setPackageFilter] = useState('all');
-  
-  // Filter users on client-side
-  const filteredUsers = useMemo(() => {
-    return users.filter((user) => {
-      const leadStage = calculateLeadStage(
-        user.created_time,
-        user.user_status.add_payment,
-        user.user_status.bot_is_running
-      );
-
-      // Lead Stage filter
-      if (leadStageFilter !== 'all' && leadStage.stage !== leadStageFilter) {
-        return false;
-      }
-
-      // Bot Status filter
-      if (botStatusFilter !== 'all') {
-        if (botStatusFilter === 'active' && !user.user_status.bot_is_running) return false;
-        if (botStatusFilter === 'paused' && (user.user_status.bot_is_running || !user.user_status.has_robot)) return false;
-        if (botStatusFilter === 'no-bot' && user.user_status.has_robot) return false;
-      }
-
-      // Payment filter
-      if (paymentFilter !== 'all') {
-        if (paymentFilter === 'paid' && !user.user_status.add_payment) return false;
-        if (paymentFilter === 'unpaid' && user.user_status.add_payment) return false;
-      }
-
-      // Package filter
-      if (packageFilter !== 'all') {
-        if (packageFilter === 'basic' && user.package !== 'Basic') return false;
-        if (packageFilter === 'elite' && user.package !== 'Elite') return false;
-        if (packageFilter === 'premium' && user.package !== 'Premium') return false;
-        if (packageFilter === 'none' && user.package) return false;
-      }
-
-      return true;
-    });
-  }, [users, leadStageFilter, botStatusFilter, paymentFilter, packageFilter]);
-
-  const clearFilters = () => {
-    setLeadStageFilter('all');
-    setBotStatusFilter('all');
-    setPaymentFilter('all');
-    setPackageFilter('all');
-  };
-  const [showFilters, setShowFilters] = useState(false);
 
   useEffect(() => {
     const auth = localStorage.getItem('cs_auth');
@@ -314,13 +267,6 @@ export default function Home() {
     });
   }, [users, leadStageFilter, botStatusFilter, paymentFilter, packageFilter]);
 
-  const clearFilters = () => {
-    setLeadStageFilter('all');
-    setBotStatusFilter('all');
-    setPaymentFilter('all');
-    setPackageFilter('all');
-  };
-
   const hasActiveFilters = leadStageFilter !== 'all' || botStatusFilter !== 'all' || paymentFilter !== 'all' || packageFilter !== 'all';
 
   const clearFilters = () => {
@@ -379,123 +325,111 @@ export default function Home() {
       </div>
 
       <div className="p-4 sm:p-6 space-y-4">
-        {/* Search and Filter Controls */}
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1">
-              <Icon icon="mdi:magnify" className="absolute left-3 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 text-gray-400" />
-              <Input
-                placeholder="ค้นหาลูกค้า (ID, ชื่อ, Email, เบอร์โทร)..."
-                value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
-                className="w-full pl-9 sm:pl-10"
-              />
-            </div>
-            <Button
-              variant={showFilters ? "default" : "outline"}
-              onClick={() => setShowFilters(!showFilters)}
-              className="sm:w-auto"
-            >
-              <Icon icon="mdi:filter-variant" className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Filter</span>
+        {/* Search */}
+        <div className="relative">
+          <Icon icon="mdi:magnify" className="absolute left-3 top-1/2 h-4 w-4 sm:h-5 sm:w-5 -translate-y-1/2 text-gray-400 z-10" />
+          <Input
+            placeholder="ค้นหาลูกค้า (ID, ชื่อ, Email, เบอร์โทร)..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setPage(1);
+            }}
+            className="w-full pl-9 sm:pl-10"
+          />
+        </div>
+
+        {/* Filters Card */}
+        <Card className="p-4">
+          <div className="mb-4 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Icon icon="mdi:filter-cog" className="h-4 w-4 text-blue-600" />
+              <h3 className="text-sm font-semibold">กรองข้อมูล</h3>
               {hasActiveFilters && (
-                <Badge variant="secondary" className="ml-2 rounded-full px-1.5 py-0.5 text-xs">
-                  {[leadStageFilter, botStatusFilter, paymentFilter, packageFilter].filter(f => f !== 'all').length}
+                <Badge variant="secondary" className="ml-2 rounded-full px-2 py-0.5 text-xs">
+                  {[leadStageFilter, botStatusFilter, paymentFilter, packageFilter].filter(f => f !== 'all').length} ตัวกรอง
                 </Badge>
               )}
-            </Button>
+            </div>
+            {hasActiveFilters && (
+              <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 text-xs">
+                <Icon icon="mdi:filter-remove" className="mr-1 h-4 w-4" />
+                ล้างทั้งหมด
+              </Button>
+            )}
           </div>
-
-          {/* Collapsible Filters */}
-          {showFilters && (
-            <div className="rounded-lg border border-gray-200 bg-white p-4">
-              <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm font-semibold flex items-center gap-2">
-                  <Icon icon="mdi:filter-cog" className="h-4 w-4 text-blue-600" />
-                  กรองข้อมูล
-                </h3>
-                {hasActiveFilters && (
-                  <Button variant="ghost" size="sm" onClick={clearFilters} className="h-8 text-xs">
-                    <Icon icon="mdi:filter-remove" className="mr-1 h-4 w-4" />
-                    ล้างทั้งหมด
-                  </Button>
-                )}
-              </div>
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-                <div>
-                  <Label className="mb-2 block text-xs font-medium">Lead Stage</Label>
-                  <Select value={leadStageFilter} onValueChange={setLeadStageFilter}>
-                    <SelectTrigger className="w-full text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">ทั้งหมด</SelectItem>
-                      <SelectItem value="new">🟢 New</SelectItem>
-                      <SelectItem value="demo-7d">🟡 Demo 7D</SelectItem>
-                      <SelectItem value="demo-1d">🟣 Demo 1D</SelectItem>
-                      <SelectItem value="active">🔵 Active</SelectItem>
-                      <SelectItem value="inactive">⚪️ Inactive</SelectItem>
-                      <SelectItem value="payment-failed">⚫️ Payment Failed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="mb-2 block text-xs font-medium">Bot Status</Label>
-                  <Select value={botStatusFilter} onValueChange={setBotStatusFilter}>
-                    <SelectTrigger className="w-full text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">ทั้งหมด</SelectItem>
-                      <SelectItem value="active">Active</SelectItem>
-                      <SelectItem value="paused">Paused</SelectItem>
-                      <SelectItem value="no-bot">No Bot</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="mb-2 block text-xs font-medium">Payment</Label>
-                  <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-                    <SelectTrigger className="w-full text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">ทั้งหมด</SelectItem>
-                      <SelectItem value="paid">เชื่อมบัตรแล้ว</SelectItem>
-                      <SelectItem value="unpaid">ยังไม่เชื่อมบัตร</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label className="mb-2 block text-xs font-medium">Package</Label>
-                  <Select value={packageFilter} onValueChange={setPackageFilter}>
-                    <SelectTrigger className="w-full text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">ทั้งหมด</SelectItem>
-                      <SelectItem value="basic">Basic</SelectItem>
-                      <SelectItem value="elite">Elite</SelectItem>
-                      <SelectItem value="premium">Premium</SelectItem>
-                      <SelectItem value="none">ไม่มี Package</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+          <Separator className="mb-4" />
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            <div className="space-y-2">
+              <Label className="text-xs font-medium">Lead Stage</Label>
+              <Select value={leadStageFilter} onValueChange={setLeadStageFilter}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="ทั้งหมด" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">ทั้งหมด</SelectItem>
+                  <SelectItem value="new">🟢 New</SelectItem>
+                  <SelectItem value="demo-7d">🟡 Demo 7D</SelectItem>
+                  <SelectItem value="demo-1d">🟣 Demo 1D</SelectItem>
+                  <SelectItem value="active">🔵 Active</SelectItem>
+                  <SelectItem value="inactive">⚪️ Inactive</SelectItem>
+                  <SelectItem value="payment-failed">⚫️ Payment Failed</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
-              <Icon icon="mdi:database" className="h-4 w-4 flex-shrink-0" />
-              <span>
-                แสดง {filteredUsers.length} รายการจาก {totalCount.toLocaleString()} คน
-                {hasActiveFilters && <span className="text-blue-600"> (มีการกรอง)</span>}
-              </span>
+            <div className="space-y-2">
+              <Label className="text-xs font-medium">Bot Status</Label>
+              <Select value={botStatusFilter} onValueChange={setBotStatusFilter}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="ทั้งหมด" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">ทั้งหมด</SelectItem>
+                  <SelectItem value="active">▶️ Active</SelectItem>
+                  <SelectItem value="paused">⏸️ Paused</SelectItem>
+                  <SelectItem value="no-bot">❌ No Bot</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-medium">Payment</Label>
+              <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="ทั้งหมด" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">ทั้งหมด</SelectItem>
+                  <SelectItem value="paid">✅ เชื่อมบัตรแล้ว</SelectItem>
+                  <SelectItem value="unpaid">❌ ยังไม่เชื่อมบัตร</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label className="text-xs font-medium">Package</Label>
+              <Select value={packageFilter} onValueChange={setPackageFilter}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="ทั้งหมด" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">ทั้งหมด</SelectItem>
+                  <SelectItem value="basic">Basic</SelectItem>
+                  <SelectItem value="elite">Elite</SelectItem>
+                  <SelectItem value="premium">Premium</SelectItem>
+                  <SelectItem value="none">ไม่มี Package</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </Card>
+
+        {/* Results Info */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs sm:text-sm text-gray-600">
+            <Icon icon="mdi:database" className="h-4 w-4 flex-shrink-0" />
+            <span>
+              แสดง {filteredUsers.length} รายการจาก {totalCount.toLocaleString()} คน
+              {hasActiveFilters && <span className="ml-2 text-blue-600 font-medium">(มีการกรอง)</span>}
+            </span>
           </div>
         </div>
 
