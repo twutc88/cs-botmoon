@@ -1,5 +1,5 @@
-const BASE_URL = 'https://api-cm.botmoon.com';
-const SECRET_KEY = 'ec8930f3-6348-4614-b8e2-72606a69fda2';
+// Use Next.js API routes as proxy to avoid CORS issues
+const API_BASE = '/api';
 
 export interface User {
   id: number;
@@ -40,7 +40,7 @@ export async function fetchUsers(
   pageSize: number = 20,
   search: string = ''
 ): Promise<UsersResponse> {
-  const url = `${BASE_URL}/external/user?secretKey=${SECRET_KEY}&page=${page}&page_size=${pageSize}&search=${encodeURIComponent(search)}`;
+  const url = `${API_BASE}/users?page=${page}&page_size=${pageSize}&search=${encodeURIComponent(search)}`;
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error('Failed to fetch users');
@@ -49,7 +49,7 @@ export async function fetchUsers(
 }
 
 export async function fetchUserDetail(userId: number): Promise<{ status: string; data: UserDetail }> {
-  const url = `${BASE_URL}/external/user/detail?secretKey=${SECRET_KEY}&user_id=${userId}`;
+  const url = `${API_BASE}/users/${userId}`;
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error('Failed to fetch user detail');
