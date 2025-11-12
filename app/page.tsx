@@ -105,9 +105,27 @@ export default function Home() {
   const loadUsers = async () => {
     setLoading(true);
     try {
-      // Load all users by requesting a large page size
-      const response = await fetchUsers(1, 10000, search);
-      setAllUsers(response.data);
+      // Load first page to get total count
+      const firstResponse = await fetchUsers(1, 100, search);
+      const totalCount = firstResponse.pagination.total_count;
+      const maxPages = Math.min(firstResponse.pagination.max_page, 50); // Limit to 50 pages (5000 users)
+      
+      let allData = [...firstResponse.data];
+      
+      // Load remaining pages in batches
+      if (maxPages > 1) {
+        const pagePromises = [];
+        for (let p = 2; p <= maxPages; p++) {
+          pagePromises.push(fetchUsers(p, 100, search));
+        }
+        
+        const responses = await Promise.all(pagePromises);
+        responses.forEach(res => {
+          allData = [...allData, ...res.data];
+        });
+      }
+      
+      setAllUsers(allData);
     } catch (error) {
       console.error('Error loading users:', error);
     } finally {
